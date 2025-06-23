@@ -1,8 +1,21 @@
 const bcrypt = require('bcrypt');
 const { user } = require('../models');
 
-exports.index = (req, res) => {
-    res.json("tes");
+exports.index = async (req, res) => {
+    try{
+        const listUser = await user.findAll();
+        res.status(200).json({
+            responseCode: 200,
+            responseMessage: "Berhasil Mendapatkan Data User",
+            data: listUser
+          });
+    }catch(error){
+        res.status(500).json({
+            responseCode: 500,
+            responseMessage: `Terjadi kesalahan : ${error.message}`,
+          });
+    }
+
 };
 
 exports.store = async (req, res) => {
@@ -25,7 +38,7 @@ exports.store = async (req, res) => {
         });
         
         res.status(201).json({
-            responseCode: 200,
+            responseCode: 201,
             responseMessage: "User berhasil dibuat",
             data: {
               id: newUser.iduser,
@@ -36,13 +49,13 @@ exports.store = async (req, res) => {
     } catch (error) {
           if(error.name == 'SequelizeUniqueConstraintError'){
             res.status(500).json({
-            responseCode: 200,
-                responseCode: false,
+            responseCode: 500,
+                responseCode: 500,
                 responseMessage: `Username sudah digunakan`,
               });
         }else{
             res.status(500).json({
-                responseCode: false,
+                responseCode: 500,
                 responseMessage: `Terjadi kesalahan server`,
               });
         }
