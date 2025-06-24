@@ -1,96 +1,61 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import $ from "jquery";
+import { Modal } from "./modal";
+import Datatable from "react-data-table-component";
 
 function Home() {
   const [ListUser, setListUser] = useState([]);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    axios.get("http://localhost:3001/user").then((response) => {
+    axios.get("http://localhost:3001/").then((response) => {
       setListUser(response.data.data);
-    });
-
-    $("#AddUser").on("click", () => {
-      $("#modalAddUser").show(); // atau pakai toggleClass dll
     });
   }, []);
 
+  const columns = [
+    {
+      name: "No",
+      selector: (row, index) => index + 1,
+      sortable: true,
+      width: "80px",
+    },
+    {
+      name: "Username",
+      selector: (row) => row.username,
+      sortable: true,
+    },
+    {
+      name: "Status",
+      selector: (row) => (row.isActive === 1 ? "Active" : "NonActive"),
+      sortable: true,
+    },
+    {
+      name: "Action",
+      cell: (row) => (
+        <button type="button" className="btn btn-sm btn-info">
+          Edit
+        </button>
+      ),
+    },
+  ];
+
   return (
     <div className="container">
-      <button className="btn btn-success" id="AddUser">
+      <button className="btn btn-success" onClick={() => setShowModal(true)}>
         Add User
       </button>
-      <br />
-      <table className="table table-hover">
-        <thead className="bg-info">
-          <tr>
-            <th scope="col">No</th>
-            <th scope="col">Username</th>
-            <th scope="col">Status</th>
-            <th scope="col">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {ListUser.map((value, key) => {
-            return (
-              <tr key={key}>
-                <td>{key + 1}</td>
-                <td>{value.username}</td>
-                <td>{value.isActive === 1 ? "Active" : "NonActive"}</td>
-                <td>
-                  <button type="button" className="btn btn-md btn-info">
-                    Edit
-                  </button>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      {showModal && <Modal onClose={() => setShowModal(false)}></Modal>}
 
-      <div className="modal" id="modalAddUser" tabIndex="-1">
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">Modal title</h5>
-              <button
-                type="button"
-                id="closeModal"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body">
-              <p>Modal body text goes here.</p>
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Close
-              </button>
-              <button type="button" className="btn btn-primary" id="closeModal">
-                Save changes
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Datatable
+        title="Daftar Pengguna"
+        columns={columns}
+        data={ListUser}
+        pagination
+        fixedHeader
+        highlightOnHover
+      />
     </div>
-
-    // <div>
-    //   {ListUser.map((value,key) =>{
-    //     return(
-    //         <div className='list' key={value.idUser}>
-    //             <div className='username'> {value.username} </div>
-    //             <div className='active'>{value.isActive === 1 ? 'Active' : 'NonActive'} </div>
-    //         </div>
-    //     );
-    //   })}
-    // </div>
   );
 }
 
